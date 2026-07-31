@@ -1,0 +1,10 @@
+{
+  "name": "Claude Code Loop",
+  "description": "Architect → Builders → Reviewer loop for Claude Code: separate contexts, a review gate, agent memory.",
+  "status": "Stable",
+  "priority": null,
+  "client": null,
+  "repository": "https://github.com/senblet/claude-code-loop.git",
+  "next_action": null,
+  "updated_at": "2026-07-31"
+}
