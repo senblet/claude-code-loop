@@ -80,12 +80,28 @@ on every machine and the whole learning mechanism is decorative.
 ## Install
 
 ```bash
+python3 path/to/claude-code-loop/install.py your-project
+```
+
+Standard library only. It creates the directories, copies the four files, and
+checks whether your `.gitignore` swallows `.claude/` or `.claude/agent-memory/`
+— the two ways this setup breaks without saying anything.
+
+It never overwrites a file you have edited: a destination that differs from the
+template is reported and left alone, and the run exits non-zero. Pass `--force`
+to take the template's version anyway. Also `--dry-run` to see the plan, and
+`--commit` to stage and commit `.claude/` for you.
+
+Re-running it is safe — that is how you pull template updates into a project
+that already has the loop installed.
+
+The equivalent by hand, if you would rather see it:
+
+```bash
 cd your-project
 mkdir -p .claude/agents .claude/commands .claude/plans
-
 cp path/to/claude-code-loop/agents/*.md      .claude/agents/
 cp path/to/claude-code-loop/commands/ship.md .claude/commands/
-
 git add .claude && git commit -m "chore: agent loop"
 ```
 
@@ -145,6 +161,7 @@ agents/architect.md   plans and splits; no Edit tool, so it structurally cannot 
 agents/builder.md     implements one task, writes tests, applies review findings
 agents/reviewer.md    QA gate; verdict format, severity levels, edit budget
 commands/ship.md      the orchestrator: routes work, counts rounds, enforces stops
+install.py            copies the four files into a project; checks .gitignore
 docs/TUNING.md        parallel worktrees, hooks, graduating to a dynamic workflow
 ```
 
