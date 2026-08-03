@@ -9,17 +9,21 @@ request or issue
       ▼
   Architect ──── plans and splits the work, writes no code
       │
-      ▼
-  Builders  ──── one task each, own context, code + tests
+      ├──▶ Designer ──── UI work only: specs the surface before it is built
+      │         │
+      ▼         │
+  Builders  ◀───┘  one task each, own context, code + tests
       │
       ▼
    one PR
       │
       ▼
   Reviewer  ──── sees only the diff, approves or sends it back
-      │                                    │
-      ▼                                    └──▶ back to the Builders
-   approved                                     (max 3 rounds)
+      ▲                                   │
+      └── Designer, on its own spec       └──▶ back to the Builders
+      │                                        (max 3 rounds)
+      ▼
+   approved
 ```
 
 ## Why this instead of just asking Claude to do it
@@ -90,6 +94,41 @@ Three of those four were decided before a Builder wrote a line, which is why
 extra rounds could never have recovered them. If the loop feels slow, look at the
 plan before you look at the agents.
 
+## The Designer, and why it only runs sometimes
+
+Every other kind of disagreement in this loop has something that ends it. A
+failing test settles an argument about logic. Nothing settles an argument about
+layout — a reviewer can always find something to dislike about an interface, and
+the builder can always disagree. So UI work is the worst case for the three-round
+cap unless something decides the design *before* the code exists.
+
+That is the Designer's job. On a UI task it runs first, reads the patterns the
+repo already has, and writes a spec whose lines become acceptance criteria:
+states, interaction, focus order, accessibility, and the exact copy. Then at
+review time it is resumed to check the built result against **its own spec** —
+running the app, screenshotting each state, and citing a spec line for every
+finding.
+
+Two constraints make that safe, and they are the same idea as the Reviewer's edit
+budget:
+
+- **It cannot introduce a standard at review time.** A design it now wishes it
+  had specified differently is a FOLLOW-UP, not a finding. Builders cannot
+  satisfy a spec that did not exist when they built.
+- **It does not own the verdict.** Its findings go into the Reviewer's single
+  verdict. One gate, not two.
+
+**It should not run on most UI work.** The trigger is a new user-facing surface,
+or a change to an existing flow's states or interaction model. Not styling, not
+copy edits, not adding a field to a pattern the repo already has — in a project
+with established components most interface work is pattern-following, and a
+design pass there costs a round and returns nothing.
+
+One honest limit: a screenshot review is only as real as the screenshot. A shot
+of a login redirect or an error boundary looks exactly like evidence, so the
+Designer has to confirm it captured the surface it specified, and report
+`UNVERIFIED` rather than review a page it never loaded.
+
 ## What learning actually means here
 
 All three agents use `memory: project`, which gives them a persistent directory
@@ -111,7 +150,7 @@ on every machine and the whole learning mechanism is decorative.
 python3 path/to/claude-code-loop/install.py your-project
 ```
 
-Standard library only. It creates the directories, copies the four files, and
+Standard library only. It creates the directories, copies the five files, and
 checks whether your `.gitignore` swallows `.claude/` or `.claude/agent-memory/`
 — the two ways this setup breaks without saying anything.
 
@@ -171,6 +210,7 @@ round, because the Builders get the rules *before* they write rather than after.
 | Agent | Default | Why |
 |---|---|---|
 | Architect | `opus` | A wrong plan costs a whole cycle. Cheapest place to spend. |
+| Designer | `opus` | Judgment, and only runs on UI work — so it is rarely the cost. |
 | Builders | `sonnet` | Volume work, and the Reviewer catches what it misses. |
 | Reviewer | `opus` | Judgment. This is the gate; don't make it dumber than the Builders. |
 
@@ -187,6 +227,7 @@ frontmatter on *every* subagent — including the Opus pins above.
 ```
 agents/architect.md   plans and splits; no Edit tool, so it structurally cannot code
 agents/builder.md     implements one task, writes tests, applies review findings
+agents/designer.md    UI only: specs a surface before it is built, then checks it
 agents/reviewer.md    QA gate; verdict format, severity levels, edit budget
 commands/ship.md      the orchestrator: routes work, counts rounds, enforces stops
 install.py            copies the four files into a project; checks .gitignore

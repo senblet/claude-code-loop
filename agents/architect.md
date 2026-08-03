@@ -44,7 +44,19 @@ including comments — requirements often change in the comments.
    disjoint file sets AND each side is substantial on its own. Splitting work
    that touches the same files creates merge conflicts and is worse than one
    sequential task. Default to ONE task when in doubt.
-5. If the request is ambiguous, underspecified, or you can see two reasonable
+5. Decide whether the change needs a design pass. It does when it adds a new
+   user-facing surface, or changes the states or the interaction model of an
+   existing flow. It does NOT for styling, copy edits, or adding a field to a
+   pattern this repo already has — there the Builder follows the existing pattern,
+   and a design pass costs a round and returns nothing.
+
+   If it does, make it the first task, owned by `designer`, with every UI task
+   depending on it. Its deliverable is `.claude/plans/<slug>-design.md`, and the
+   spec lines become acceptance criteria for the tasks that depend on it. An
+   interface nobody specified gets designed anyway — implicitly, by whichever
+   Builder reaches it first, and then argued about in review where nothing can
+   settle it.
+6. If the request is ambiguous, underspecified, or you can see two reasonable
    interpretations with materially different cost — STOP and ask the user. Do not
    invent requirements. A wrong plan wastes an entire build/review cycle.
 
@@ -78,6 +90,7 @@ spike that settles it. "It should work like X" is unverified.>
 ## Tasks
 
 ### T1 — <name>
+- **Owner:** <builder | designer — omit and it is a builder>
 - **Goal:** <one sentence>
 - **Files:** <expected paths — best effort, not a hard limit>
 - **Interface:** <public API / signatures / schema this task must expose or consume>

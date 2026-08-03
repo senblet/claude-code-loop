@@ -28,9 +28,14 @@ If the Architect came back with questions instead of a plan, relay them to me.
 
 ## Phase 2 — Build
 
-For each task in the plan, spawn a **builder** subagent. Pass it: the plan file
-path, its task id, and the base branch name. Nothing else — builders read the plan
-themselves.
+For each task in the plan, spawn the subagent named in its `Owner` field —
+**builder** unless it says `designer`. Pass it: the plan file path, its task id,
+and the base branch name. Nothing else — they read the plan themselves.
+
+A `designer` task runs in SPEC mode: it writes a design spec that the UI tasks
+depend on, so it runs alone and first, like a spike. Show me its spec before
+spawning the tasks that depend on it — design is cheaper to correct on the page
+than in the diff.
 
 - Tasks marked `Parallel-safe: yes` with no unmet dependencies → spawn together.
 - Everything else → one at a time, in dependency order.
@@ -40,9 +45,9 @@ themselves.
   built on, stop and bring the plan back to me — that is the spike doing its job,
   and building the rest on a disproved assumption wastes the whole cycle.
 
-Record each builder's agent id. You will need it to resume them in Phase 4 — a
-resumed builder keeps its full context and its memory of what it already tried,
-which is much cheaper and much better than a fresh one.
+Record every agent id, builders and designer alike. You will need them to resume
+in Phases 3 and 4 — a resumed agent keeps its full context and its memory of what
+it already tried, which is much cheaper and much better than a fresh one.
 
 When all builders report `done`: run the full test suite yourself, commit, push,
 and open one PR with `gh pr create`. One PR for the whole request, however many
@@ -50,8 +55,17 @@ builders worked on it.
 
 ## Phase 3 — Review
 
-Delegate to the **reviewer** subagent. Pass it: the original request, the plan file
-path, the base commit, the PR number, and every builder report verbatim.
+If the plan had a designer task, resume that **designer** agent in FIDELITY mode
+first. It checks the built result against its own spec and returns design
+findings. Do this before the reviewer runs, so its findings land in one verdict
+instead of arriving as a second opinion afterwards.
+
+Then delegate to the **reviewer** subagent. Pass it: the original request, the
+plan file path, the base commit, the PR number, every builder report verbatim,
+and the designer's fidelity report if there is one.
+
+The reviewer owns the verdict. The designer contributes findings to it and does
+not approve or reject anything — one gate, not two.
 
 ## Phase 4 — Loop
 
@@ -60,7 +74,9 @@ path, the base commit, the PR number, and every builder report verbatim.
 - `CHANGES_REQUESTED` → route each finding to the builder that owns those files by
   resuming that builder's agent with the findings. Then go back to Phase 3 with
   ROUND incremented. Always use the same reviewer agent so it remembers what it
-  already flagged.
+  already flagged. Design findings go to builders too — the designer specifies
+  and checks, it does not write product code. Only a designer FOLLOW-UP, which
+  changes the design itself, comes to me instead of going into a round.
 
 Hard stop after **3 rounds**. If round 3 still comes back CHANGES_REQUESTED, stop
 and escalate to me with: what is still broken, what has been tried, and what you

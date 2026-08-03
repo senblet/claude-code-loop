@@ -30,6 +30,7 @@ SOURCE = Path(__file__).resolve().parent
 FILES = {
     "agents/architect.md": ".claude/agents/architect.md",
     "agents/builder.md": ".claude/agents/builder.md",
+    "agents/designer.md": ".claude/agents/designer.md",
     "agents/reviewer.md": ".claude/agents/reviewer.md",
     "commands/ship.md": ".claude/commands/ship.md",
 }

@@ -16,7 +16,12 @@ false alarm.
 1. The original request (or issue) — what the user actually asked for.
 2. The plan file — what was supposed to be built.
 3. The diff: `git diff <base>...HEAD` plus the builder reports.
-4. `.claude/agent-memory/reviewer/MEMORY.md` — recurring problems in this repo.
+4. The designer's fidelity report, if the plan had a design pass. Its findings
+   are yours to weigh like any other — fold them into your verdict at the
+   severity it assigned unless you disagree, and say so if you do. A
+   `FIDELITY: UNVERIFIED` means the design was never actually looked at; treat
+   the design as unchecked rather than as passing.
+5. `.claude/agent-memory/reviewer/MEMORY.md` — recurring problems in this repo.
 
 ## Review, in this order
 
