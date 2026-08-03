@@ -1,7 +1,8 @@
 # claude-code-loop
 
-An Architect → Builders → Reviewer loop for Claude Code. Subagents, a review gate,
-and a memory that learns from its own mistakes.
+An Architect → Builders → Reviewer loop for Claude Code, plus a Designer on work
+that has a user interface. Subagents, a review gate, and a memory that learns
+from its own mistakes.
 
 ```
 request or issue
@@ -33,9 +34,10 @@ done — has one structural problem: **the thing that wrote the code also decide
 whether the code is good.** Self-review is generous. It approves its own design
 choices because it can still see the reasoning that produced them.
 
-This template splits that into three agents with separate context windows. The
-Reviewer cannot see the Builder's reasoning, only the diff — the same position a
-human reviewer is in, which is the whole reason human review works.
+This template splits that into three agents with separate context windows, and a
+fourth — a Designer — on work that has a user interface. The Reviewer cannot see
+the Builder's reasoning, only the diff: the same position a human reviewer is in,
+which is the whole reason human review works.
 
 That's the idea. But the idea is easy and the implementation has three specific
 ways to fail. **These three constraints are the actual content of this repo:**
@@ -131,7 +133,7 @@ Designer has to confirm it captured the surface it specified, and report
 
 ## What learning actually means here
 
-All three agents use `memory: project`, which gives them a persistent directory
+All four agents use `memory: project`, which gives them a persistent directory
 at `.claude/agent-memory/<name>/` that survives across sessions and gets loaded
 into their prompt at startup.
 
@@ -177,7 +179,7 @@ git add .claude && git commit -m "chore: agent loop"
 up within seconds with no restart needed.
 
 To confirm it loaded: type `/` and look for `ship`, or type `@` and look for the
-three agents in the picker.
+four agents in the picker.
 
 ## Use
 
@@ -214,8 +216,9 @@ round, because the Builders get the rules *before* they write rather than after.
 | Builders | `sonnet` | Volume work, and the Reviewer catches what it misses. |
 | Reviewer | `opus` | Judgment. This is the gate; don't make it dumber than the Builders. |
 
-Three agents plus a review round runs roughly 5–8× a single-session fix. Sonnet
-Builders are the main dial and usually the whole saving — but if rounds 2 and 3
+The three core agents plus a review round run roughly 5–8× a single-session fix;
+a task that pulls in the Designer adds a spec pass and a screenshot pass on top.
+Sonnet Builders are the main dial and usually the whole saving — but if rounds 2 and 3
 fire constantly on the same kind of task, move the Builders back to Opus for that
 work rather than loosening the Reviewer.
 
@@ -230,7 +233,7 @@ agents/builder.md     implements one task, writes tests, applies review findings
 agents/designer.md    UI only: specs a surface before it is built, then checks it
 agents/reviewer.md    QA gate; verdict format, severity levels, edit budget
 commands/ship.md      the orchestrator: routes work, counts rounds, enforces stops
-install.py            copies the four files into a project; checks .gitignore
+install.py            copies the five files into a project; checks .gitignore
 docs/TUNING.md        parallel worktrees, hooks, graduating to a dynamic workflow
 ```
 
