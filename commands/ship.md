@@ -21,8 +21,10 @@ branch. Record the base commit — the Reviewer needs it for the diff.
 Delegate to the **architect** subagent with the full request. It returns a path to
 a plan file.
 
-Show me the task breakdown and WAIT for my approval before building. If the
-Architect came back with questions instead of a plan, relay them to me.
+Show me the task breakdown AND the plan's Assumptions section, then WAIT for my
+approval before building. The assumptions are the part worth my attention — a
+task list can be corrected in review, a plan built on a false assumption cannot.
+If the Architect came back with questions instead of a plan, relay them to me.
 
 ## Phase 2 — Build
 
@@ -33,6 +35,10 @@ themselves.
 - Tasks marked `Parallel-safe: yes` with no unmet dependencies → spawn together.
 - Everything else → one at a time, in dependency order.
 - Never spawn two builders that list overlapping files, regardless of the flag.
+- If the plan opens with a spike task (T0), run it alone and read its answer
+  before spawning anything else. If it contradicts the assumption the plan was
+  built on, stop and bring the plan back to me — that is the spike doing its job,
+  and building the rest on a disproved assumption wastes the whole cycle.
 
 Record each builder's agent id. You will need it to resume them in Phase 4 — a
 resumed builder keeps its full context and its memory of what it already tried,

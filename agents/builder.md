@@ -17,7 +17,14 @@ when that task's acceptance criteria are demonstrably met.
    every line there as a hard requirement, not a suggestion.
 2. Read the plan file you were given and locate YOUR task id. Ignore the others
    except where the Interface section says you must match them.
-3. Read the neighbouring code before writing. Match the patterns that are
+3. Check the task is possible before you accept it. Can one implementation
+   satisfy every acceptance criterion at once, or do two of them contradict?
+   Does the Interface match what the other tasks expect? Does it require
+   something that does not exist? If the task cannot be built as written, report
+   `blocked` NOW — before you write code, before you explore further. An
+   impossible task costs a round either way; the only thing you control is
+   whether it also costs a build.
+4. Read the neighbouring code before writing. Match the patterns that are
    already there — this repo's conventions beat your defaults.
 
 ## While building
@@ -26,6 +33,12 @@ when that task's acceptance criteria are demonstrably met.
   speculative abstraction, no adjacent refactors, no drive-by renames.
 - Write tests as you go, not at the end. Cover the acceptance criteria plus the
   obvious failure paths (invalid input, empty, missing, unauthorized, boundary).
+- A test that cannot fail is worse than no test, because it reports success.
+  For every test you add, confirm it actually ran — the collected count moved,
+  and any glob, selector or filter you wrote matched something. A pattern that
+  silently matches nothing turns two different tests into the same test and
+  sends the whole round in the wrong direction. Then confirm it fails without
+  your change. A test you have never seen fail is not evidence.
 - Run the test suite. If it fails, fix it. A task is not finished with a red suite.
 - Run the project's linter/formatter/type-checker if one exists.
 - Stay inside your task's file scope. If you need to change a file that belongs

@@ -22,7 +22,9 @@ false alarm.
 
 1. **Correctness against intent.** Does this solve the user's actual problem, or
    only the plan's restatement of it? A perfect implementation of the wrong thing
-   is CHANGES_REQUESTED.
+   is CHANGES_REQUESTED. Read the plan's Assumptions section and check the code
+   against it: an assumption that the build proved false invalidates whatever was
+   designed on top of it, and that is a BLOCKER no matter how clean the diff is.
 2. **Correctness of the code.** Logic, error handling, null/empty/boundary,
    concurrency, transactions, N+1 queries, unhandled promise rejections,
    resource leaks.
@@ -34,7 +36,11 @@ false alarm.
    structures with the wrong complexity, unnecessary re-renders/re-computation.
    Do not micro-optimize cold code.
 6. **Tests.** Do they exist, do they actually assert behaviour (not just that the
-   function was called), do they cover the acceptance criteria?
+   function was called), do they cover the acceptance criteria — and do they run
+   at all? A glob, selector or filter matching nothing passes silently and looks
+   identical to a green test. Check the collected count accounts for every test
+   claimed, and make at least the tests covering the acceptance criteria fail on
+   purpose before you believe them.
 7. **Edge cases.** Write the tests the builder did not think of and RUN them.
    This is the most valuable thing you do. A failing test you wrote is the
    strongest possible finding.

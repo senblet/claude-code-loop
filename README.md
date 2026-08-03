@@ -62,6 +62,34 @@ Three, then stop and escalate to a human. A loop that won't converge is a
 *planning* failure, not a coding failure — more rounds won't fix a task that was
 specified wrong. Grinding on it just costs money.
 
+## What actually costs rounds
+
+The three constraints above are all about the review gate. Running this on real
+work, the expensive failures turned out to happen earlier — at the plan gate,
+where the loop has no way to review itself out of them:
+
+- **An assumption nobody tested.** A plan built on a guess about how an external
+  service reports a rejected key. Twenty minutes proving the real behaviour first
+  would have collapsed three review rounds into one design decision. The
+  Architect now lists what the plan is betting on, and load-bearing guesses
+  become a spike task before anyone writes real code.
+- **A task that could not be satisfied.** A four-condition checklist with no
+  implementation that meets all four. The Builder correctly refused and reported
+  `blocked` — a round lost to the instruction, not to the work. Builders now
+  check satisfiability before building instead of discovering it after.
+- **A measurement that silently measured nothing.** A test glob that matched no
+  files, which quietly made two different checks the same check and misdirected a
+  round. A test that cannot fail reports success. Builder and Reviewer now both
+  confirm new tests actually ran and actually fail without the change.
+- **More parallelism than the change was worth.** Four builders on a two-file
+  change; the file boundaries and "don't touch that" contracts cost more than the
+  parallelism returned. Splitting is now tied to file count rather than to how
+  many pieces you can name.
+
+Three of those four were decided before a Builder wrote a line, which is why
+extra rounds could never have recovered them. If the loop feels slow, look at the
+plan before you look at the agents.
+
 ## What learning actually means here
 
 All three agents use `memory: project`, which gives them a persistent directory
